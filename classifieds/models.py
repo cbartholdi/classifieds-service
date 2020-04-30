@@ -8,6 +8,8 @@ class Classified(models.Model):
     body = models.TextField()
     email = models.EmailField()
 
+    created = models.DateTimeField(auto_now_add=True)
+
 
 class ClassifiedPrice(models.Model):
     classified = models.ForeignKey(Classified, on_delete=models.CASCADE)
