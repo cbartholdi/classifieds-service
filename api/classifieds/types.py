@@ -1,13 +1,18 @@
 from graphene_django.types import DjangoObjectType
+from graphene import Field
 
-from classifieds.models import Classified, ClassifiedPrice
-
-
-class ClassifiedType(DjangoObjectType):
-    class Meta:
-        model = Classified
+from classifieds.models import Classified, Price
 
 
 class PriceType(DjangoObjectType):
     class Meta:
-        model = ClassifiedPrice
+        model = Price
+
+
+class ClassifiedType(DjangoObjectType):
+    price = Field(PriceType)
+
+    class Meta:
+        model = Classified
+
+

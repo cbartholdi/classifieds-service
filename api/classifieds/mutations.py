@@ -1,9 +1,10 @@
 import graphene
+from django.db import transaction
 from graphene import String, Field, Boolean, Argument, ID
 
 from api.classifieds.inputs import PriceInput
-from api.classifieds.types import ClassifiedType, PriceType
-from classifieds.models import Classified, ClassifiedPrice
+from api.classifieds.types import ClassifiedType
+from classifieds.models import Classified, Price
 
 
 class CreateClassifiedMutation(graphene.Mutation):
@@ -17,32 +18,26 @@ class CreateClassifiedMutation(graphene.Mutation):
     ok = Boolean()
     error_code = String()
     classified = Field(ClassifiedType)
-    price = Field(PriceType)
 
     def mutate(self, info, subject, body, email, price=None):
         ok = False
-        classified, classified_price, error_code = None, None, None
+        classified, error_code = None, None
 
         try:
+
             classified = Classified.objects.create(
                 subject=subject,
                 body=body,
-                email=email
+                email=email,
+                price=Price.objects.create(**price) if price else None
             )
-
-            if price:
-                classified_price = ClassifiedPrice.objects.create(
-                    classified=classified,
-                    amount=price.amount,
-                    currency=price.currency
-                )
 
             ok = True
 
         except Exception:
             error_code = 500
 
-        return CreateClassifiedMutation(ok=ok, error_code=error_code, classified=classified, price=classified_price)
+        return CreateClassifiedMutation(ok=ok, error_code=error_code, classified=classified)
 
 
 class DeleteClassifiedMutation(graphene.Mutation):
@@ -58,8 +53,12 @@ class DeleteClassifiedMutation(graphene.Mutation):
         error_code = None
 
         try:
-            Classified.objects.get(id=classified_id).delete()
-            ok = True
+            with transaction.atomic():
+                Price.objects.filter(classified=classified_id).delete()
+                Classified.objects.get(id=classified_id).delete()
+
+                ok = True
+
         except Exception:
             error_code = 500
 
