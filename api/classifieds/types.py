@@ -14,5 +14,3 @@ class ClassifiedType(DjangoObjectType):
 
     class Meta:
         model = Classified
-
-

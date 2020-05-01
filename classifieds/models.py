@@ -12,7 +12,5 @@ class Classified(models.Model):
     subject = models.CharField(max_length=255)
     body = models.TextField()
     email = models.EmailField()
-
     price = models.OneToOneField(Price, null=True, on_delete=models.SET_NULL, related_name='classified')
-
     created = models.DateTimeField(auto_now_add=True)
