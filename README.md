@@ -47,7 +47,13 @@ mutation {
 query {
   allClassifieds(orderBy: "price", ordering: "desc") {
     id
+    email
     subject
+    body
+    price {
+      amount
+      currency
+    }
   }
 }
 ```
