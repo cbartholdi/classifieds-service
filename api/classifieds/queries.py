@@ -1,33 +1,29 @@
 import graphene
+from graphene import String
 from graphql import GraphQLError
 
-from api.classifieds.constants import SORT_PRICE, SORT_CREATED, ORDERING_MAPPER
+from api.classifieds.constants import SORT_PRICE, SORT_CREATED, ORDERING_MAPPER, DESC_SIGNAL, Responses
 from api.classifieds.types import ClassifiedType
 from classifieds.models import Classified
 
 
 class ClassifiedsQuery(object):
-    all_classifieds = graphene.List(ClassifiedType)
+    all_classifieds = graphene.List(ClassifiedType,
+                                    order_by=String(default_value=SORT_PRICE),
+                                    ordering=String(default_value=DESC_SIGNAL))
 
-    def resolve_all_classifieds(self, info, order_by='created', ordering='desc'):
-
-        """
-        A way of fetching existing ads. It should be possible to sort the ads on the time they
-        were inserted and by their price
-        """
-
-        # Order by both price and created combined? use sorted lambda...
-
+    def resolve_all_classifieds(self, info, order_by, ordering):
         try:
             if order_by not in (SORT_PRICE, SORT_CREATED):
-                raise Exception  # <- custom exception!
+                raise ValueError
             if ordering not in ORDERING_MAPPER:
-                raise Exception  # <- custom exception!
+                raise ValueError
 
-            order_by = f'{ORDERING_MAPPER.get(ordering)}{order_by}'
+            order = f'{ORDERING_MAPPER.get(ordering)}{order_by}'
 
-            return Classified.objects.order_by(order_by).select_related('price')
+            return Classified.objects.order_by(order).select_related('price')
+
+        except ValueError:
+            raise GraphQLError(Responses.ILLEGAL_ARGUMENT.value)
         except Exception:
-            raise GraphQLError('OR JUST ERROR CODE LIKE IN MUTATION?')
-
-
+            raise GraphQLError(Responses.INTERNAL_ERROR.value)
