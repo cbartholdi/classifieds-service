@@ -2,6 +2,7 @@ import graphene
 from django.db import transaction
 from graphene import String, Field, Boolean, Argument, ID
 
+from api.classifieds.constants import Responses
 from api.classifieds.inputs import PriceInput
 from api.classifieds.types import ClassifiedType
 from classifieds.models import Classified, Price
@@ -24,7 +25,6 @@ class CreateClassifiedMutation(graphene.Mutation):
         classified, error_code = None, None
 
         try:
-
             classified = Classified.objects.create(
                 subject=subject,
                 body=body,
@@ -35,7 +35,7 @@ class CreateClassifiedMutation(graphene.Mutation):
             ok = True
 
         except Exception:
-            error_code = 500
+            error_code = Responses.INTERNAL_ERROR.value
 
         return CreateClassifiedMutation(ok=ok, error_code=error_code, classified=classified)
 
@@ -59,7 +59,10 @@ class DeleteClassifiedMutation(graphene.Mutation):
 
                 ok = True
 
+        except (Classified.DoesNotExist, Price.DoesNotExist):
+            error_code = Responses.NOT_FOUND.value
+
         except Exception:
-            error_code = 500
+            error_code = Responses.INTERNAL_ERROR.value
 
         return DeleteClassifiedMutation(ok=ok, error_code=error_code)
