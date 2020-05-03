@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 ('body', models.TextField()),
                 ('email', models.EmailField(max_length=254)),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('price', models.OneToOneField(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='classified', to='classifieds.Price')),
+                ('price', models.OneToOneField(null=True, blank=True, on_delete=django.db.models.deletion.SET_NULL, related_name='classified', to='classifieds.Price')),
             ],
         ),
     ]
