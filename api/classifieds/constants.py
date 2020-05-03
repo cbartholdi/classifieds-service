@@ -13,6 +13,11 @@ ORDERING_MAPPER = {
     DESC_SIGNAL: '-',
 }
 
+SORT_MAPPER = {
+    SORT_PRICE: 'price__amount',
+    SORT_CREATED: SORT_CREATED
+}
+
 
 class Responses(Enum):
     NOT_FOUND = 'NotFound'
