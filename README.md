@@ -1,15 +1,16 @@
 # Classifieds service
-A small Django appllication with a GraphQL API for placing classifieds ads.
+A small Django appllication with a GraphQL API for placing classifieds ads
 
 ## Developers
 
+Standing in root directory run:
 ```
 docker-compose up 
 ```
 
 ## The API
 
-Find the API at http://localhost:8000/graphql
+Access API at: http://localhost:8000/graphql
 
 
 **Create**
@@ -23,6 +24,7 @@ mutation {
       email
       subject
       body
+      created
       price {
         amount
         currency
@@ -50,6 +52,7 @@ query {
     email
     subject
     body
+    created
     price {
       amount
       currency
