@@ -1,4 +1,5 @@
 import graphene
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from graphene import String, Field, Boolean, Argument, ID
 
@@ -25,15 +26,19 @@ class CreateClassifiedMutation(graphene.Mutation):
         classified, error_code = None, None
 
         try:
-            classified = Classified.objects.create(
-                subject=subject,
-                body=body,
-                email=email,
-                price=Price.objects.create(**price) if price else None
-            )
+            kwargs = dict(subject=subject, body=body, email=email)
+
+            Price(**price).full_clean() if price else None
+            Classified(**kwargs).full_clean()
+
+            kwargs.update(price=Price.objects.create(**price) if price else None)
+
+            classified = Classified.objects.create(**kwargs)
 
             ok = True
 
+        except ValidationError:
+            error_code = Responses.ILLEGAL_ARGUMENT.value
         except Exception:
             error_code = Responses.INTERNAL_ERROR.value
 
